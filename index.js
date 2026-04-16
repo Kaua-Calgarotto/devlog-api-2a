@@ -1,13 +1,29 @@
-import express from 'express';
-const app = express();
+//npm init -y   //inicia um novo projeto node
+//npm install express  //instala a dependênci do Express
+//Configura type:module no package.json 
+//npm install nodemon --save-dev
+//Configura o nodemon no packge.json
+// "scripts": {
+//     "start": "node index.js",
+//     "dev": "nodemon index.js"
+//   },
+//Criar arquivo index.js
+//Configurar servidor express
+//executa a aplicação com npm run dev
 
+
+import express from 'express';
+import projectRoutes from './routes/projectRoutes.js'
+const app = express();
+app.use(express.json()); //Para o express lidar com json
 const port = 3030;
 
-app.get('/', (req, res) =>{
-    res.json({"mensagem": "Seja Bem-Vindo!"});
+app.use('/api/v1/projects', projectRoutes);
+
+app.get('/health', (req, res) => {
+    res.json({status: "OK"})
 })
 
-app.listen(port, () =>{
-    let data = new Date();
-    console.log(`Servidor iniciado em ${data}`);
+app.listen(port, () => {
+    console.log(`Servidor iniciado na porta ${port}`);
 })
