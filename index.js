@@ -14,10 +14,14 @@
 
 import express from 'express';
 import projectRoutes from './routes/projectRoutes.js'
+import morgan from 'morgan';
 const app = express();
+
+
 app.use(express.json()); //Para o express lidar com json
 const port = 3030;
 
+app.use(morgan('dev'));
 app.use('/api/v1/projects', projectRoutes);
 
 app.get('/health', (req, res) => {
