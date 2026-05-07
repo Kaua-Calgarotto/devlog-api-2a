@@ -11,23 +11,46 @@
 //Configurar servidor express
 //executa a aplicação com npm run dev
 
-
+import 'dotenv/config';
 import express from 'express';
-import projectRoutes from './routes/projectRoutes.js'
 import morgan from 'morgan';
+import projectRoutes from './routes/projectRoutes.js'
 const app = express();
 
-
+// ── Middlewares globais ─────────────────────────────────────
 app.use(express.json()); //Para o express lidar com json
-const port = 3030;
-
 app.use(morgan('dev'));
+
+// ── Rotas ────────────────────────────────────────────────────
 app.use('/api/v1/projects', projectRoutes);
 
 app.get('/health', (req, res) => {
-    res.json({status: "OK"})
-})
+  res.json({
+    status: 'ok',
+    env: process.env.NODE_ENV,
+    version: '1.0.0'
+  });
+});
 
-app.listen(port, () => {
-    console.log(`Servidor iniciado na porta ${port}`);
-})
+// ── Middleware de 404 ────────────────────────────────────────
+app.use((req, res, next) => {
+  res.status(404).json({
+    error: 'Rota não encontrada',
+    path: req.path,
+    method: req.method
+  });
+});
+
+// ── Error handler (4 params — SEMPRE ÚLTIMO) ─────────────────
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(err.statusCode || 500).json({
+    error: err.message || 'Erro interno do servidor'
+  });
+});
+
+const PORT = process.env.PORT || 3030; //fallback para porta 3030
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
+});
