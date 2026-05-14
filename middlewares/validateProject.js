@@ -20,4 +20,4 @@ export function validateProject(req, res, next) {
   } 
   
   next(); // tudo ok — passa para o handler 
-} 
+}
