@@ -1,56 +1,24 @@
-//npm init -y   //inicia um novo projeto node
-//npm install express  //instala a dependênci do Express
-//Configura type:module no package.json 
-//npm install nodemon --save-dev
-//Configura o nodemon no packge.json
-// "scripts": {
-//     "start": "node index.js",
-//     "dev": "nodemon index.js"
-//   },
-//Criar arquivo index.js
-//Configurar servidor express
-//executa a aplicação com npm run dev
-
+// PRIMEIRA LINHA - antes de tudo!
 import 'dotenv/config';
+
 import express from 'express';
-import morgan from 'morgan';
-import projectRoutes from './routes/projectRoutes.js'
+import { login } from './controllers/authController.js';
+import { authenticate } from './middlewares/authenticate.js';
+import * as projectController from './controllers/projectController.js'; 
+
 const app = express();
+app.use(express.json());
 
-// ── Middlewares globais ─────────────────────────────────────
-app.use(express.json()); //Para o express lidar com json
-app.use(morgan('dev'));
+// Rota pública de login (ANTES das rotas de projetos)
+app.post('/auth/login', login);
 
-// ── Rotas ────────────────────────────────────────────────────
-app.use('/api/v1/projects', projectRoutes);
+// Rotas públicas (GET sem token)
+app.get('/api/v1/projects', projectController.list);
+app.get('/api/v1/projects/:id', projectController.getById);
 
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    env: process.env.NODE_ENV,
-    version: '1.0.0'
-  });
-});
+// Rotas protegidas (com token)
+app.post('/api/v1/projects', authenticate, projectController.create);
+app.patch('/api/v1/projects/:id', authenticate, projectController.update);
+app.delete('/api/v1/projects/:id', authenticate, projectController.remove);
 
-// ── Middleware de 404 ────────────────────────────────────────
-app.use((req, res, next) => {
-  res.status(404).json({
-    error: 'Rota não encontrada',
-    path: req.path,
-    method: req.method
-  });
-});
-
-// ── Error handler (4 params — SEMPRE ÚLTIMO) ─────────────────
-app.use((err, req, res, next) => {
-  console.error(err.message);
-  res.status(err.statusCode || 500).json({
-    error: err.message || 'Erro interno do servidor'
-  });
-});
-
-const PORT = process.env.PORT || 3030; //fallback para porta 3030
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-  console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
-});
+app.listen(3000, () => console.log('🚀 Servidor rodando na porta 3000'));
