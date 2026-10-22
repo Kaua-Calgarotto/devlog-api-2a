@@ -1,0 +1,18 @@
+/*  em telas de até 600px o cabeçalho deve ocupar toda a largura e toda a altura da tela */
+
+.header {
+    background-color: blue;
+    padding-top: 50px;
+}
+
+.btn {
+    position: absolute;
+}
+
+
+@media screen and (max-width:600px) {
+    .header {
+        width: 100vw;
+        height: 100vh;
+    }
+}
